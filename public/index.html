@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Url Shortener</title>
+    <link rel="stylesheet" href="tailwind.output.css" />
+  </head>
+  <body>
+    <div class="root">
+      <div
+        class="hero flex justify-center items-center lg:flex-row flex-col m-5"
+      >
+        <img
+          src="./assets/image.jpg"
+          alt="hero-illustration"
+          class="lg:w-4/12 md:block hidden w-8/12"
+        />
+        <div>
+          <h1 class="lg:text-5xl text-xl font-bold">Short link, big result</h1>
+          <p class="w-10/12 lg:text-base text-xs">
+            A URL shortener built with powerful tools to help you grow and
+            protect your brand.
+          </p>
+        </div>
+      </div>
+      <div class="input-url w-full flex justify-center lg:mx-0">
+        <div class="mb-4 md:w-8/12 w-full flex lg:mx-0 mx-5">
+          <input
+            class="shadow appearance-none border long-url rounded-l-md w-full py-2 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            type="text"
+            placeholder="Input your long url"
+          />
+          <button
+            class="bg-blue-500 hover:bg-blue-700 text-white btn-submit font-bold py-2 px-4 rounded-r-md"
+          >
+            Shorten
+          </button>
+        </div>
+      </div>
+      <div class="flex justify-center lg:mx-0 mx-5 hidden" id="url">
+        <div
+          class="shadow appearance-none border rounded-l-md md:w-3/12 w-full py-2 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-12 flex justify-between items-center"
+        >
+          <span class="short-url"></span>
+          <button
+            onclick="CopyToClipboard('link')"
+            class="bg-blue-500 hover:bg-blue-700 text-white btn-submit font-bold py-2 px-4 rounded"
+          >
+            Copy Link
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    const longUrl = document.querySelector(".long-url");
+    const shortUrl = document.querySelector(".short-url");
+    const btnSubmit = document.querySelector(".btn-submit");
+    const urlID = document.querySelector("#url");
+
+    btnSubmit.addEventListener("click", (event) => {
+      const data = {
+        longUrl: longUrl.value,
+      };
+
+      fetch(`http://localhost:3000/api/url/shorten`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((res) => res.json())
+        .then((response) => {
+          appendUrlShorten(response.shortUrl);
+        });
+    });
+
+    const appendUrlShorten = (url) => {
+      urlID.classList.remove("hidden");
+      const newEl = document.createElement("a");
+      newEl.setAttribute("href", url);
+      newEl.setAttribute("class", "text-indigo-500");
+      newEl.setAttribute("id", "link");
+      newEl.innerText = url;
+      shortUrl.appendChild(newEl);
+    };
+
+    function CopyToClipboard(containerid) {
+      if (document.selection) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(document.getElementById(containerid));
+        range.select().createTextRange();
+        document.execCommand("copy");
+      } else if (window.getSelection) {
+        var range = document.createRange();
+        range.selectNode(document.getElementById(containerid));
+        window.getSelection().removeAllRanges(range);
+        window.getSelection().addRange(range);
+        document.execCommand("copy");
+        alert("text copied");
+      }
+    }
+  </script>
+</html>
